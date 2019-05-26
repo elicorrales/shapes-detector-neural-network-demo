@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <title>Shapes Detection Test</title>
+</head>
+
+<body onresize="doResizeCanvas()">
+
+    <h1>Shapes Detection Test ++</H1>
+
+    <div class="container">
+
+        <!-- Static navbar -->
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <!--
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle " data-toggle="collapse" data-target="#navbar"
+                        aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+            -->
+                <div id="navbar" class="navbar ">
+                    <ul class="nav navbar-nav">
+                        <li id="homeNavBtn" class="active"><a href="#">Home</a></li>
+                        <li id="trainNavBtn"><a href="#" onclick="doShowTrainingSection()">Train</a></li>
+                        <li id="shapesNavBtn"><a href="#" onclick="doShowShapesSection()">Shapes</a></li>
+                        <li id="aboutNavBtn"><a href="#">About</a></li>
+                    </ul>
+                </div>
+                <!--/.nav-collapse -->
+            </div>
+            <!--/.container-fluid -->
+        </nav>
+
+
+    </div>
+
+    <div class="container container-fluid">
+        <div id="messages"></div>
+    </div>
+
+
+
+
+    <div id="trainingSection" class="container container-fluid">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Neural Network Controls
+                </div>
+                <div class="panel-body">
+                    <label for="nnNumInputs">Inputs:</label>
+                    <input id="nnNumInputs" type="text" placeholder="no of inputs" value="2" />
+                    <label for="nnNumHidden">Hidden:</label>
+                    <input id="nnNumHidden" type="text" placeholder="no of hidden" value="8" />
+                    <label for="nnNumOutputs">Outputs:</label>
+                    <input id="nnNumOutputs" type="text" placeholder="no of outputs" value="1" />
+                    <button class="btn btn-info" onclick="doCreateNetwork()">Create Network</button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Canvas
+                    <label>Height:
+                        <input type="text" placeholder="height" value="400" onchange="doChangeCanvasHeight(this)" />
+                    </label>
+                </div>
+                <div class="panel-body">
+                    <div id="trainingCanvasParent"></div>
+                    <div>
+                        <label class="checkbox-inline"><input id="autoRelearn" type="checkbox"
+                                onclick="doAutoRelearn()">Auto Re-learn</label>
+                    </div>
+                    Learning Rate: <span id="learningRate"></span>
+                    <input id="learningRateSlider" type="range" min="0.01" max="3.0" step="0.01" value="0.9"
+                        onchange="doChangeLearningRate()">
+                    Time To Wait (seconds): <span id="trainingWait"></span>
+                    <input id="trainingWaitSlider" type="range" min="1" max="60" step="1" value="4"
+                        onchange="doChangeTrainingWaitTime()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div id="shapesSection" class="container container-fluid" style="display:none">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div>
+                        Canvas
+                        <button class="btn btn-default" onclick="doClearCanvas()">Clear</button>
+                        <button class="btn btn-default" onclick="doCheckPixels()">Chk Pxls</button>
+                        <label for="pointX">X: <input id="pointX" name="pointX" type="text" placeholder="height"
+                                value="0" onchange="doChangeCurrX(this)"/> </label>
+                        <label for="pointY">Y: <input id="pointY" name="pointY" type="text" placeholder="height"
+                                value="0" onchange="doChangeCurrY(this)"/> </label>
+                        <button class="btn btn-default" onclick="doPointAtXY()">New Point</button>
+                        <button class="btn btn-default" onclick="doIncPointXY()">Next Point</button>
+                            <label class="checkbox-inline"><input id="autoIncPoint" type="checkbox" >Auto Next Point</label>
+                    </div>
+                    <div>
+                        <label for="newPixel">Pixel: <input id="newPixel" name="newPixel" type="text"
+                                placeholder="height" value="0" /> </label>
+                        <button class="btn btn-default" onclick="doNewPixel()">New Pixel</button>
+                        <button class="btn btn-default" onclick="doIncPixelLoc()">Inc Pixel Loc</button>
+                        <button class="btn btn-default" onclick="doShapeBoundarySearch()">Shape Boundary Search</button>
+                        <button class="btn btn-default" onclick="doShapeGrid()">Add Grid</button>
+                        <button class="btn btn-default" onclick="doFillGridSquares()">Fill Squares</button>
+                        <button class="btn btn-default" onclick="doIncHorzResolution()">Inc Horz</button>
+                        <button class="btn btn-default" onclick="doDecHorzResolution()">Dec Horz</button>
+                        Inputs: <span id="numInputs"></span> Horz: <span id="numHorz">1</span> Vert: <span id="numVert">1</span>
+                        <button class="btn btn-default" onclick="doSaveImage()">Save Image</button>
+                        <button class="btn btn-default" onclick="doPlaceImage()">Place Image</button>
+                    </div>
+                </div>
+                <div class="panel-body" style="background:aliceblue">
+                    <div id="shapesCanvasParent"></div>
+                    Num Black Pixels: <span id="numBlackPixels"></span>
+                    <div>
+                        Canvas Width: <span id="canvasWidth"></span>
+                        Height: <span id="canvasHeight"></span>
+                    </div>
+                    <div>
+                        First Black Pixel: <span id="firstPixel"></span>
+                    </div>
+                    <div> X: <span id="atPointX"></span> </div>
+                    <div> Y: <span id="atPointY"></span> </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+        </div>
+        <div class="row">
+        </div>
+        <div class="row">
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+</body>
+<script src="js.vendor/p5.min.js"></script>
+<script src="js.vendor/p5.dom.min.js"></script>
+<script src="js.vendor/nn.js"></script>
+<script src="js.vendor/matrix.js"></script>
+<script src="messages.js"></script>
+<script src="training.data.js"></script>
+<script src="train.func.js"></script>
+<script src="shapes.js"></script>
+<script src="nn.html.controls.js"></script>
+<script src="canvas.html.controls.js"></script>
+<script src="navbar.html.controls.js"></script>
+<script src="mouse.events.js"></script>
+<script src="search.pixels.func.js"></script>
+<script src="index.js"></script>
+
+</html>
