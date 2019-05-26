@@ -45,5 +45,9 @@ const doShowShapesSection = () => {
     if (numHorz !== numVert) {
         showMessages('warning','Horz != Vert');
     }
+    shadeElem.innerHTML = shade;
+    if (localStorage) {
+        shade = localStorage.getItem('shade');
+    }
 }
 

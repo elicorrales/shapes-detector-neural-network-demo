@@ -2,6 +2,7 @@ const autoIncPointElem = document.getElementById('autoIncPoint');
 const numInputsElem = document.getElementById('numInputs');
 const numHorzElem = document.getElementById('numHorz');
 const numVertElem = document.getElementById('numVert');
+const shadeElem = document.getElementById('shade');
 
 let currY = 0;
 let currX = 0;
@@ -25,6 +26,28 @@ let imageStartY;
 let currGridSquareImage;
 let currFilledGridSquaresImage;
 let summedFilledGridSquaresImage;
+let shade = 10;
+
+// for saving image info
+let imageInfoGridArray;
+let imageInfoName;
+
+const doIncShade = () => {
+    if (!shade || shade === '' || shade === 'undefined' || shade === 'null') shade = 10;
+    if (shade < 255) shade++;
+    shadeElem.innerHTML = shade;
+    if (localStorage) {
+        localStorage.setItem('shade',shade);
+    }
+}
+const doDecShade = () => {
+    if (!shade || shade === '' || shade === 'undefined' || shade === 'null') shade = 10;
+    if (shade > 0) shade--;
+    shadeElem.innerHTML = shade;
+    if (localStorage) {
+        localStorage.setItem('shade',shade);
+    }
+}
 
 const doClearCanvas = () => {
     background(255);
@@ -134,59 +157,66 @@ const gridSquares = (r, g, b) => {
 }
 
 const doFillGridSquares = () => {
-    currGridSquareImage = undefined;
-    currFilledGridSquaresImage = undefined;
-    summedFilledGridSquaresImage = undefined;
-    background(255);
-    gridSquares(255, 255, 255);//erase the visible grid lines
-    if (imageRegion) {
-        image(imageRegion, imageStartX, imageStartY);
+    clearMessages();
+    if (imageRegion === undefined) {
+        showMessages('danger','No Image to Fill Grid Squares');
+        return;
     }
+
+    currGridSquareImage = undefined;
+    background(255);
+        image(imageRegion, imageStartX, imageStartY);
     let boundaryWidth = rightBlackX - leftBlackX;
     let boundaryHeight = bottomBlackY - topBlackY;
     let cols = numHorz;
     let rows = numVert;
     let horzResolution = boundaryWidth / cols;
     let vertResolution = boundaryHeight / rows;
+    imageInfoGridArray = [];
     for (let i = 0; i < cols; i++) {
+
+        let gridRow = [];
         for (let j = 0; j < rows; j++) {
 
-            //erase canvas, put original image back in, for next grid square check
-            //background(255);
-            //image(imageRegion, imageStartX, imageStartY);
-
             //grab just current square of grid
-            currGridSquareImage = get(leftBlackX + i * horzResolution, topBlackY + j * vertResolution, horzResolution, vertResolution);
+            currGridSquareImage = get(leftBlackX + j * horzResolution, topBlackY + i * vertResolution, horzResolution, vertResolution);
             currGridSquareImage.loadPixels();
 
+            let foundOccupiedGridSquare = false;
             //check current grid square for black
             for (let p=0; p<currGridSquareImage.pixels.length; p+=4) {
-                if ((currGridSquareImage.pixels[p] === 0) 
-                && (currGridSquareImage.pixels[p+1] === 0) 
-                && (currGridSquareImage.pixels[p+2] === 0)) { 
+                if ((currGridSquareImage.pixels[p] < shade)      //Red
+                && (currGridSquareImage.pixels[p+1] < shade)     // Green 
+                && (currGridSquareImage.pixels[p+2] < shade)) {  // Blue
+                    foundOccupiedGridSquare = true;
                     noStroke();
                     fill(0,0,0);
-                    rect(1 + leftBlackX + i * horzResolution, 1+ topBlackY + j * vertResolution, horzResolution - 1, vertResolution - 1);
-                    break;
-                } else {
-                    stroke(254,0,0);
-                    noFill();
-                    rect(leftBlackX + i * horzResolution, topBlackY + j * vertResolution, horzResolution, vertResolution);
+                    rect(1 + leftBlackX + j * horzResolution, 1+ topBlackY + i * vertResolution, horzResolution - 1, vertResolution - 1);
+                    gridRow.push(1);
+                    break; //once we've found at least one black pixel, we dont need to keep checking that same grid square.
                 }
             };
+            if (!foundOccupiedGridSquare) {
+                gridRow.push(0);
+            }
         }
+        imageInfoGridArray.push(gridRow);
     }
 
 }
-//let currGridSquareImage;
-//let currFilledSquaresImage;
-//let summedFilledSquaresImage;
 
 const doShapeGrid = () => {
+    clearMessages();
+    if (imageRegion === undefined) {
+        showMessages('danger','No Image to Add Grid Squares');
+        return;
+    }
+
     gridSquares(255, 0, 0);//grid lines
 }
 
 const doShapeBoundarySearch = () => {
+    clearMessages();
     currX = 0;
     currY = 0;
     let foundBlackPoint = false;
@@ -194,6 +224,10 @@ const doShapeBoundarySearch = () => {
     loadPixels();
     while (1 === 1) {
         if (isCurrentPixelBlack()) {
+            //we only have to register that we found at least 1 black pixel,
+            //becauase this loop will continue until every pixel is checked,
+            //even if we already found one.
+            //thus, finding one, means finding ALL the extremities.
             foundBlackPoint = true;
             if (topBlackX < 0) {
                 topBlackX = currX;
@@ -244,14 +278,38 @@ const doShapeBoundarySearch = () => {
 }
 
 const doSaveImage = () => {
-    if (imageRegion) {
+    clearMessages();
+    if (imageRegion !== undefined) {
         save(imageRegion, 'myImage.jpg');
+    } else {
+        showMessages('danger','No image to save');
     }
 }
 
+const doSaveImageInfo = () => {
+    clearMessages();
+    if (!imageInfoGridArray || imageInfoGridArray.length === 0) {
+        showMessages('danger','No Image Info to Save');
+        return;
+    }
+    if (!imageInfoName || imageInfoName.length === 0) {
+        showMessages('danger','Need Image Info Name to Save');
+    }
+
+    let myImageInfo = new MyImageInfo(imageInfoGridArray,imageInfoName);
+    myImageInfo.save();
+}
+
+const doImageName = (obj) => {
+    imageInfoName = obj.value;
+}
+
 const doPlaceImage = () => {
-    if (imageRegion) {
+    clearMessages();
+    if (imageRegion !== undefined) {
         image(imageRegion, imageStartX, imageStartY);
+    } else {
+        showMessages('danger','No Image To Place');
     }
 }
 

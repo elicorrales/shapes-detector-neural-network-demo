@@ -111,8 +111,7 @@
                             <label class="checkbox-inline"><input id="autoIncPoint" type="checkbox" >Auto Next Point</label>
                     </div>
                     <div>
-                        <label for="newPixel">Pixel: <input id="newPixel" name="newPixel" type="text"
-                                placeholder="height" value="0" /> </label>
+                        <label for="newPixel">Pixel: <input id="newPixel" name="newPixel" type="text" placeholder="height" value="0" /> </label>
                         <button class="btn btn-default" onclick="doNewPixel()">New Pixel</button>
                         <button class="btn btn-default" onclick="doIncPixelLoc()">Inc Pixel Loc</button>
                         <button class="btn btn-default" onclick="doShapeBoundarySearch()">Shape Boundary Search</button>
@@ -121,8 +120,13 @@
                         <button class="btn btn-default" onclick="doIncHorzResolution()">Inc Horz</button>
                         <button class="btn btn-default" onclick="doDecHorzResolution()">Dec Horz</button>
                         Inputs: <span id="numInputs"></span> Horz: <span id="numHorz">1</span> Vert: <span id="numVert">1</span>
+                        Shade: <span id="shade"></span> 
+                        <button class="btn btn-default" onclick="doIncShade()">Inc Shade</button>
+                        <button class="btn btn-default" onclick="doDecShade()">Dec Shade</button>
                         <button class="btn btn-default" onclick="doSaveImage()">Save Image</button>
                         <button class="btn btn-default" onclick="doPlaceImage()">Place Image</button>
+                        <button class="btn btn-default" onclick="doSaveImageInfo()">Save Image Info</button>
+                        <label for="imageName">Image: <input id="imageName" name="imageName" type="text" placeholder="Img Name" onchange="doImageName(this)"/> </label>
                     </div>
                 </div>
                 <div class="panel-body" style="background:aliceblue">
@@ -171,6 +175,7 @@
 <script src="navbar.html.controls.js"></script>
 <script src="mouse.events.js"></script>
 <script src="search.pixels.func.js"></script>
+<script src="image.info.js"></script>
 <script src="index.js"></script>
 
 </html>
