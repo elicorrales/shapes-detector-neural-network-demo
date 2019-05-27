@@ -3,6 +3,7 @@ const learningRateElem = document.getElementById('learningRate');
 const trainingWaitSliderElem = document.getElementById('trainingWaitSlider');
 const trainingWaitElem = document.getElementById('trainingWait');
 const autoRelearnElem = document.getElementById('autoRelearn');
+const delRegexElem = document.getElementById('delRegex');
 
 let trainingStartTime = new Date().getTime();
 let allTrained = false;
@@ -30,8 +31,16 @@ trainingWaitElem.innerHTML = trainingWaitSliderElem.value;
 
 
 const isAllTrained = (data, errors) => {
-    for (let i = 0; i < data.outputs.length; i++) {
-        if (Math.abs(data.outputs[i] - errors[i]) > 0.1) return false;
+    if (data===undefined || data.length===0 || errors===undefined || errors.length===0 || data.length!==errors.length) {
+        throw 'danger','Cant Train: Data Array Len ('
+                +data.length
+                +') incompatible with Errors Array Len ('
+                +errors.length
+                +'). You might be missing some shape(digit?).'
+                +' You can add it to the training data, or you can reduce the Network output nodes.';
+    }
+    for (let i = 0; i < data.length; i++) {
+        if (Math.abs(data[i] - errors[i]) > 0.1) return false;
     }
     return true;
 }
@@ -56,22 +65,61 @@ const findLocalStorageItems = (query) => {
 
 const doChooseShapesTrainingData = () => {
     let trainingData = [];
+    let outputs = [];
     if (localStorage) {
         let items = findLocalStorageItems('.*json');
         items.forEach( item => {
+            let foundOutput = outputs.find( o => {return o === item.val.target});
+            if (!foundOutput) outputs.push(item.val.target);
             trainingData.push(item.val);
         });
     }
+    //of the training array that is created here from the local storage,
+    //each member only knows about itself.  but, what we need as outputs of the network
+    //is one output for each possibility; i.e., if the training data consist of the digits,
+    //we need 9 outputs.
+    //furthermore, EACH of the training samples needs to have that same outputs[], indicating
+    //the 9 possibilities.
+    //AND further, each of those output[] arrays could be different per sample, because
+    // there should be a "1" in the output[] location that has to do with the digit of that
+    //sample.
+    outputs.sort();//here, the array contains [0,1,2,3,....] which is wrong..
+    trainingData.forEach( t => {
+        let uniqueOutputs = outputs.slice();//make a copy
+        outputs.forEach( (o,idx) => {
+            //there should be a "1" only in the outputs[x] position that is related to that digit possiblity
+            //all other outputs[x] should be "0".
+            if (o === t.target) {
+                uniqueOutputs[idx] = 1;
+            } else {
+                uniqueOutputs[idx] = 0;
+            }
+        })
+        t.outputs = uniqueOutputs;
+    });
     currentTrainingData = trainingData;
 }
 
 const doRemoveShapesTrainingData = () => {
+    let regex = delRegexElem.value;
+    if (regex===undefined || regex.length<1) {
+        showMessages('danger','Need A Regex in order to delete training data');
+        return;
+    }
+
+    let stuffDeleted = false;
     if (localStorage) {
-        let items = findLocalStorageItems('.*json');
+        let items = findLocalStorageItems(regex);
         items.forEach( item => {
             localStorage.removeItem(item.key);
+            stuffDeleted = true;
         });
     }
+
+    if (stuffDeleted) {
+        showMessages('success','Matching \'' + regex + '\' was deleted.');
+    }
+    delRegexElem.value = undefined;
 }
 
 const doChangeLearningRate = () => {
@@ -104,8 +152,8 @@ const doAutoRelearn = () => {
 
 const train = () => {
 
-    if (currentTrainingData === undefined) {
-        showMessages('danger','No Training Data Selected');
+    if (currentTrainingData === undefined || currentTrainingData.length < 1) {
+        showMessages('danger','No Training Data Selected Or There is no data');
         return;
     }
 
@@ -121,6 +169,7 @@ const train = () => {
                 showMessages('success', 'All Trained');
                 showedAllTrained = true;
             }
+            return;
         }
 
         // depending on how the network was initialized,
@@ -146,7 +195,7 @@ const train = () => {
                 for (let i = 0; i < 50; i++) {
                     let data = random(currentTrainingData);
                     let errors = network.predict(data.inputs);
-                    allTrained = isAllTrained(data, errors);
+                    allTrained = isAllTrained(data.outputs, errors);
                     output_errors = network.train(data.inputs, data.outputs);
                 }
             }

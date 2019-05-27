@@ -33,23 +33,6 @@ let imageInfoGridArray;
 let imageInfoName;
 let imageInfoTarget;
 
-const doIncShade = () => {
-    if (!shade || shade === '' || shade === 'undefined' || shade === 'null') shade = 10;
-    if (shade < 255) shade++;
-    shadeElem.innerHTML = shade;
-    if (localStorage) {
-        localStorage.setItem('shade',shade);
-    }
-}
-const doDecShade = () => {
-    if (!shade || shade === '' || shade === 'undefined' || shade === 'null') shade = 10;
-    if (shade > 0) shade--;
-    shadeElem.innerHTML = shade;
-    if (localStorage) {
-        localStorage.setItem('shade',shade);
-    }
-}
-
 const doClearCanvas = () => {
     background(255);
     pointXElem.value = 0;
@@ -65,6 +48,31 @@ const doClearCanvas = () => {
     rightBlackX = -1;
     rightBlackY = -1;
     currPixelIdx = 0;
+    imageRegion = undefined;
+    imageStartX = -1;
+    imageStartY = -1;
+    currGridSquareImage = undefined;
+    currFilledGridSquaresImage = undefined;
+    summedFilledGridSquaresImage = undefined;
+    imageInfoGridArray = undefined;
+
+}
+
+const doIncShade = () => {
+    if (!shade || shade === '' || shade === 'undefined' || shade === 'null') shade = 10;
+    if (shade < 255) shade++;
+    shadeElem.innerHTML = shade;
+    if (localStorage) {
+        localStorage.setItem('shade',shade);
+    }
+}
+const doDecShade = () => {
+    if (!shade || shade === '' || shade === 'undefined' || shade === 'null') shade = 10;
+    if (shade > 0) shade--;
+    shadeElem.innerHTML = shade;
+    if (localStorage) {
+        localStorage.setItem('shade',shade);
+    }
 }
 
 const goToNextPoint = (x, y) => {
@@ -301,22 +309,27 @@ const doSaveImage = () => {
 
 const doSaveImageInfo = () => {
     clearMessages();
-    if (!imageInfoGridArray || imageInfoGridArray.length === 0) {
-        showMessages('danger','No Image Info to Save');
+    if (imageRegion===undefined || imageRegion.length === 0) {
+        showMessages('danger','No Image Region Info to Save');
         return;
     }
-    if (!imageInfoName || imageInfoName.length === 0) {
+    if (imageInfoGridArray===undefined || imageInfoGridArray.length === 0) {
+        showMessages('danger','No Image Info Grid Array to Save');
+        return;
+    }
+    if (imageInfoName===undefined || imageInfoName.length === 0) {
         showMessages('danger','Need Image Info Name to Save');
         return;
     }
 
-    if (!imageInfoTarget || imageInfoTarget.length === 0) {
+    if (imageInfoTarget===undefined || imageInfoTarget.length === 0) {
         showMessages('danger','Need Image Info Target to Save');
         return;
     }
 
     let myImageInfo = new MyImageInfo(imageInfoGridArray,imageInfoName, imageInfoTarget);
     myImageInfo.save();
+    showMessages('success','Image \'' + imageInfoName + '\' saved.')
 }
 
 const doImageName = (obj) => {
@@ -336,3 +349,11 @@ const doPlaceImage = () => {
     }
 }
 
+const doGuess = () => {
+    doShapeBoundarySearch();
+    doFillGridSquares();
+    let outputs = network.predict(imageInfoGridArray.flat());
+    outputs.forEach( (o,idx) => {
+        console.log(idx,':',o);
+    });
+}

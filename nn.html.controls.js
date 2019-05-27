@@ -22,6 +22,7 @@ const doCreateNetwork = (typeMsg, message) => {
     let numHid = parseInt(nnNumHiddenElem.value);
     let numOut = parseInt(nnNumOutputsElem.value);
     network = new NeuralNetwork(numIn, numHid, numOut);
+    thereWasACriticalError = false;
     if (localStorage) {
         localStorage.setItem('numIn',numIn);
         localStorage.setItem('numHid',numHid);

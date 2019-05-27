@@ -15,9 +15,7 @@ class MyImageInfo {
         this.name = name;
         // example, for  number type images, just enter the number.
         // for anything else, like a letter, or a shape
-        this.outputs = [];
-        this.outputs.push(parseInt(numericTarget)); 
-
+        this.target = parseInt(numericTarget); 
 
     }
 

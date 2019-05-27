@@ -76,7 +76,10 @@
                     </label>
                     <button class="btn btn-default" onclick="doChooseLogicGatesTrainingData()">Logic Data</button>
                     <button class="btn btn-default" onclick="doChooseShapesTrainingData()">Shapes Data</button>
-                    <button class="btn btn-default" onclick="doRemoveShapesTrainingData()">Del Shps Data</button>
+                    <button class="btn btn-default" onclick="doRemoveShapesTrainingData()">Del Shapes Data</button>
+                    <label for="delRegex">Height:
+                        <input id="delRegex" name="delRegex" type="text" placeholder="regex"/>
+                    </label>
                 </div>
                 <div class="panel-body">
                     <div id="trainingCanvasParent"></div>
@@ -131,6 +134,7 @@
                         <button class="btn btn-default" onclick="doSaveImageInfo()">Save Image Info</button>
                         <label for="imageName">Image: <input id="imageName" name="imageName" type="text" placeholder="Img Name" onchange="doImageName(this)"/> </label>
                         <label for="imageTarget">Target: <input id="imageTarget" name="imageTarget" type="text" placeholder="Target" onchange="doImageTarget(this)"/> </label>
+                        <button class="btn btn-primary" onclick="doGuess()">Guess</button>
                     </div>
                 </div>
                 <div class="panel-body" style="background:aliceblue">
