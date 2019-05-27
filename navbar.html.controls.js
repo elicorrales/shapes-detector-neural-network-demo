@@ -37,17 +37,28 @@ const doShowShapesSection = () => {
     canvas.parent(currCanvasParentElem.id);
     doResizeCanvas();
     background(255);
+
+    if (localStorage) {
+        numHorz = parseInt(localStorage.getItem('numHorz'));
+    }
+    if (localStorage) {
+        numVert = parseInt(localStorage.getItem('numVert'));
+    }
     let numInputs = parseInt(nnNumInputsElem.value);
-    numInputsElem.innerHTML = numInputs;
-    numVert = numInputs/numHorz;
+    if (numHorz === undefined || isNaN(numHorz)) {
+        numHorz = 1;
+    }
+    numVert = numInputs/numHorz
     numHorzElem.innerHTML = numHorz;
     numVertElem.innerHTML = numVert;
+
     if (numHorz !== numVert) {
         showMessages('warning','Horz != Vert');
     }
-    shadeElem.innerHTML = shade;
     if (localStorage) {
         shade = localStorage.getItem('shade');
     }
+    shadeElem.innerHTML = shade;
+
 }
 

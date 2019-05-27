@@ -1,8 +1,7 @@
 
-const training_data = [
+const logicGatesTrainingData = [
     //AND
     {
-        index: 0,
         inputs: [
             0, 0, 0,
             0, 1, 0,
@@ -14,7 +13,6 @@ const training_data = [
 
     //OR
     {
-        index: 0,
         inputs: [
             0, 0, 0,
             0, 1, 1,
@@ -26,7 +24,6 @@ const training_data = [
 
     //NAND
     {
-        index: 0,
         inputs: [
             0, 0, 1,
             0, 1, 1,
@@ -38,7 +35,6 @@ const training_data = [
 
     //XOR
     {
-        index: 0,
         inputs: [
             0, 0, 0,
             0, 1, 1,

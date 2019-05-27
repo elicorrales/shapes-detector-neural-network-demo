@@ -31,6 +31,7 @@ let shade = 10;
 // for saving image info
 let imageInfoGridArray;
 let imageInfoName;
+let imageInfoTarget;
 
 const doIncShade = () => {
     if (!shade || shade === '' || shade === 'undefined' || shade === 'null') shade = 10;
@@ -114,6 +115,12 @@ const doIncHorzResolution = () => {
         showMessages('danger', 'Hozr Must Equal Vert. NN inputs must be a square.(4,9,16,25,36,49)');
         return;
     }
+    if (localStorage) {
+        localStorage.setItem('numHorz',numHorz);
+    }
+    if (localStorage) {
+        localStorage.setItem('numVert',numVert);
+    }
 }
 const doDecHorzResolution = () => {
     clearMessages();
@@ -137,6 +144,12 @@ const doDecHorzResolution = () => {
     if (numVert !== numHorz) {
         showMessages('danger', 'Hozr Must Equal Vert. NN inputs must be a square. (4,9,16,25,36,49)');
         return;
+    }
+    if (localStorage) {
+        localStorage.setItem('numHorz',numHorz);
+    }
+    if (localStorage) {
+        localStorage.setItem('numVert',numVert);
     }
 }
 
@@ -294,14 +307,24 @@ const doSaveImageInfo = () => {
     }
     if (!imageInfoName || imageInfoName.length === 0) {
         showMessages('danger','Need Image Info Name to Save');
+        return;
     }
 
-    let myImageInfo = new MyImageInfo(imageInfoGridArray,imageInfoName);
+    if (!imageInfoTarget || imageInfoTarget.length === 0) {
+        showMessages('danger','Need Image Info Target to Save');
+        return;
+    }
+
+    let myImageInfo = new MyImageInfo(imageInfoGridArray,imageInfoName, imageInfoTarget);
     myImageInfo.save();
 }
 
 const doImageName = (obj) => {
     imageInfoName = obj.value;
+}
+
+const doImageTarget = (obj) => {
+    imageInfoTarget = obj.value;
 }
 
 const doPlaceImage = () => {

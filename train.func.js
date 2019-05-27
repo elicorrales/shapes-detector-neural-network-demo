@@ -11,6 +11,8 @@ let autoRelearn = false;
 let timeRanOut = false;
 let output_errors;
 
+let currentTrainingData;
+
 showMessages('info', 'Training...');
 
 if (localStorage) {
@@ -32,6 +34,44 @@ const isAllTrained = (data, errors) => {
         if (Math.abs(data.outputs[i] - errors[i]) > 0.1) return false;
     }
     return true;
+}
+
+const doChooseLogicGatesTrainingData = () => {
+    currentTrainingData = logicGatesTrainingData;
+}
+
+const findLocalStorageItems = (query) => {
+  let results = [];
+  for (let i in localStorage) {
+    if (localStorage.hasOwnProperty(i)) {
+      if (i.match(query) || (!query && typeof i === 'string')) {
+        value = JSON.parse(localStorage.getItem(i));
+        results.push({key:i,val:value});
+      }
+    }
+  }
+  return results;
+}
+
+
+const doChooseShapesTrainingData = () => {
+    let trainingData = [];
+    if (localStorage) {
+        let items = findLocalStorageItems('.*json');
+        items.forEach( item => {
+            trainingData.push(item.val);
+        });
+    }
+    currentTrainingData = trainingData;
+}
+
+const doRemoveShapesTrainingData = () => {
+    if (localStorage) {
+        let items = findLocalStorageItems('.*json');
+        items.forEach( item => {
+            localStorage.removeItem(item.key);
+        });
+    }
 }
 
 const doChangeLearningRate = () => {
@@ -64,6 +104,11 @@ const doAutoRelearn = () => {
 
 const train = () => {
 
+    if (currentTrainingData === undefined) {
+        showMessages('danger','No Training Data Selected');
+        return;
+    }
+
     if (thereWasACriticalError) return;
     if (timeRanOut) return;
 
@@ -95,11 +140,11 @@ const train = () => {
 
         if (network != undefined) {
 
-            let numOutputs = training_data[0].outputs.length;
+            let numOutputs = currentTrainingData[0].outputs.length;
 
             if (!allTrained) {
                 for (let i = 0; i < 50; i++) {
-                    let data = random(training_data);
+                    let data = random(currentTrainingData);
                     let errors = network.predict(data.inputs);
                     allTrained = isAllTrained(data, errors);
                     output_errors = network.train(data.inputs, data.outputs);
@@ -114,7 +159,7 @@ const train = () => {
             for (let i = 0; i < cols; i++) {
                 for (let j = 0; j < rows; j++) {
                         noStroke();
-                        let outputs = network.predict(random(training_data).inputs);
+                        let outputs = network.predict(random(currentTrainingData).inputs);
                         let whichColor = 0;
             let red = 0;
             let green = 0;
