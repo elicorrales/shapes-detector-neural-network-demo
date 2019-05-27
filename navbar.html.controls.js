@@ -7,6 +7,7 @@ const shapesSectionElem = document.getElementById('shapesSection');
 
 
 const doShowTrainingSection = () => {
+    trainingStartTime = new Date().getTime();
     shapesSectionIsActive = false;
     trainingSectionIsActive = true;
 
@@ -24,6 +25,7 @@ const doShowTrainingSection = () => {
 }
 
 const doShowShapesSection = () => {
+    trainingStartTime = new Date().getTime();
     shapesSectionIsActive = true;
     trainingSectionIsActive = false;
     homeNavBtnElem.className = '';

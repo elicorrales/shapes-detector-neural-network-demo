@@ -3,6 +3,8 @@ const numInputsElem = document.getElementById('numInputs');
 const numHorzElem = document.getElementById('numHorz');
 const numVertElem = document.getElementById('numVert');
 const shadeElem = document.getElementById('shade');
+const imageNameElem = document.getElementById('imageName');
+const imageTargetElem = document.getElementById('imageTarget');
 
 let currY = 0;
 let currX = 0;
@@ -369,7 +371,13 @@ const doGuess = () => {
     console.log(guesses);
     console.log('highest idx:',highestGuessIdx,' val:',highestGuess);
     let tdMatch = currentTrainingData.find( td => td.target === highestGuessIdx);
-    if (tdMatch!==undefined) showMessages('info','Possible Match:',tdMatch.name,':',tdMatch.target);
+    if (tdMatch!==undefined) {
+        showMessages('info','Possible Match:' + tdMatch.name + ':' + tdMatch.target);
+        imageNameElem.value = tdMatch.name;
+        imageTargetElem.value = tdMatch.target;
+        imageInfoName = tdMatch.name;
+        imageInfoTarget = tdMatch.target;
+    }
 }
 
 const doReTrain = () => {

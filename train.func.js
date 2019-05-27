@@ -13,6 +13,7 @@ let timeRanOut = false;
 let output_errors;
 
 let currentTrainingData;
+let typeOfTrainingData;
 
 showMessages('info', 'Training...');
 
@@ -29,6 +30,15 @@ if (localStorage) {
 trainingWaitElem.innerHTML = trainingWaitSliderElem.value;
 
 
+const doSaveShapesTrainingData = () => {
+    clearMessages();
+    if (currentTrainingData !== undefined && typeOfTrainingData==='Shapes') {
+        save(currentTrainingData, 'shapes.training.data.json');
+    } else {
+        showMessages('danger','No Shapes Training Data to save');
+    }
+}
+
 
 const isAllTrained = (data, errors) => {
     if (data===undefined || data.length===0 || errors===undefined || errors.length===0 || data.length!==errors.length) {
@@ -40,7 +50,7 @@ const isAllTrained = (data, errors) => {
                 +' You can add it to the training data, or you can reduce the Network output nodes.';
     }
     for (let i = 0; i < data.length; i++) {
-        if (Math.abs(data[i] - errors[i]) > 0.1) return false;
+        if (Math.abs(data[i] - errors[i]) > 0.05) return false;
     }
     return true;
 }
@@ -102,6 +112,7 @@ const doChooseShapesTrainingData = () => {
         t.outputs = uniqueOutputs;
     });
     currentTrainingData = trainingData;
+    typeOfTrainingData = 'Shapes';
 }
 
 const doRemoveShapesTrainingData = () => {
