@@ -46,6 +46,8 @@ const isAllTrained = (data, errors) => {
 }
 
 const doChooseLogicGatesTrainingData = () => {
+    allTrained = false;
+    thereWasACriticalError = false;
     currentTrainingData = logicGatesTrainingData;
 }
 
@@ -64,13 +66,15 @@ const findLocalStorageItems = (query) => {
 
 
 const doChooseShapesTrainingData = () => {
+    allTrained = false;
+    thereWasACriticalError = false;
     let trainingData = [];
     let outputs = [];
     if (localStorage) {
         let items = findLocalStorageItems('.*json');
         items.forEach( item => {
             let foundOutput = outputs.find( o => {return o === item.val.target});
-            if (!foundOutput) outputs.push(item.val.target);
+            if (foundOutput===undefined) outputs.push(item.val.target);
             trainingData.push(item.val);
         });
     }
@@ -109,7 +113,7 @@ const doRemoveShapesTrainingData = () => {
 
     let stuffDeleted = false;
     if (localStorage) {
-        let items = findLocalStorageItems(regex);
+        let items = findLocalStorageItems('.*' + regex + '.*.json');
         items.forEach( item => {
             localStorage.removeItem(item.key);
             stuffDeleted = true;

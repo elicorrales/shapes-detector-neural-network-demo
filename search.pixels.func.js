@@ -278,6 +278,11 @@ const doShapeBoundarySearch = () => {
         }
     }
     if (foundBlackPoint) {
+        //lets try not bound the edges too tight to image....
+        if (leftBlackX>1) leftBlackX-=2;
+        if (rightBlackX<width-2) rightBlackX+=2;
+        if (topBlackY>1) topBlackY-=2;
+        if (bottomBlackY<width-2) bottomBlackY+=2;
         imageRegion = get(leftBlackX, topBlackY, rightBlackX - leftBlackX, bottomBlackY - topBlackY);
         imageStartX = leftBlackX;
         imageStartY = topBlackY;
@@ -343,6 +348,7 @@ const doImageTarget = (obj) => {
 const doPlaceImage = () => {
     clearMessages();
     if (imageRegion !== undefined) {
+        background(255);
         image(imageRegion, imageStartX, imageStartY);
     } else {
         showMessages('danger','No Image To Place');
@@ -350,10 +356,24 @@ const doPlaceImage = () => {
 }
 
 const doGuess = () => {
+    doPlaceImage();
     doShapeBoundarySearch();
     doFillGridSquares();
-    let outputs = network.predict(imageInfoGridArray.flat());
-    outputs.forEach( (o,idx) => {
-        console.log(idx,':',o);
+    let guesses = network.predict(imageInfoGridArray.flat());
+    let prevHighestGuessVal = 0;
+    let highestGuess = 0;
+    let highestGuessIdx = -1;
+    guesses.forEach( (guess,gidx) => {
+        if (highestGuess<guess) { prevHighestGuessVal = highestGuess; highestGuess = guess; highestGuessIdx = gidx; }
     });
+    console.log(guesses);
+    console.log('highest idx:',highestGuessIdx,' val:',highestGuess);
+    let tdMatch = currentTrainingData.find( td => td.target === highestGuessIdx);
+    if (tdMatch!==undefined) showMessages('info','Possible Match:',tdMatch.name,':',tdMatch.target);
+}
+
+const doReTrain = () => {
+    allTrained = false;
+    trainingStartTime = new Date().getTime();
+    train();
 }
