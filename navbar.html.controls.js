@@ -5,7 +5,6 @@ const aboutNavBtnElem = document.getElementById('aboutNavBtn');
 const trainingSectionElem = document.getElementById('trainingSection');
 const shapesSectionElem = document.getElementById('shapesSection');
 
-
 const doShowTrainingSection = () => {
     trainingStartTime = new Date().getTime();
     shapesSectionIsActive = false;

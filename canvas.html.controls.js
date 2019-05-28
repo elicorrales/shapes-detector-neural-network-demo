@@ -3,16 +3,27 @@ const shapesCanvasParentElem = document.getElementById('shapesCanvasParent');
 const numBlackPixelsElem = document.getElementById('numBlackPixels');
 const canvasWidthElem = document.getElementById('canvasWidth');
 const canvasHeightElem = document.getElementById('canvasHeight');
+const setCanvasHeightElem = document.getElementById('setCanvasHeight');
 const firstPixelElem = document.getElementById('firstPixel');
 const pointXElem = document.getElementById('pointX');
 const pointYElem = document.getElementById('pointY');
 const newPixelElem = document.getElementById('newPixel');
 var   currCanvasParentElem = trainingCanvasParentElem;
 
+if (localStorage) {
+    let canvasHeight = localStorage.getItem('setCanvasHeight');
+    if (canvasHeight) {
+        canvasHeightElem.innerHTML = canvasHeight;
+        setCanvasHeightElem.value = canvasHeight;
+    }
+}
 
 const doChangeCanvasHeight = (obj) => {
     canvasHeight = obj.value;
     doResizeCanvas();
+    if (localStorage) {
+        localStorage.setItem('setCanvasHeight',canvasHeight);
+    }
 }
 
 const doResizeCanvas = () => {

@@ -12,6 +12,7 @@ if (localStorage) {
 }
 
 const doCreateNetwork = (typeMsg, message) => {
+    clearSecondaryMessages();
     if (message) showMessages(typeMsg, message);
     else showMessages('info', 'Training...');
     allTrained = false;
@@ -21,6 +22,13 @@ const doCreateNetwork = (typeMsg, message) => {
     let numIn = parseInt(nnNumInputsElem.value);
     let numHid = parseInt(nnNumHiddenElem.value);
     let numOut = parseInt(nnNumOutputsElem.value);
+    let sqrt = Math.sqrt(numIn);
+    let badNumber = numIn%sqrt;
+    if (badNumber && typeOfTrainingData!==undefined && typeOfTrainingData.startsWith('Shapes')) {
+        showMessages('danger','Choose Num Inputs that are a Square');
+        allTrained = true;
+        return;
+    }
     network = new NeuralNetwork(numIn, numHid, numOut);
     thereWasACriticalError = false;
     if (localStorage) {
@@ -28,4 +36,13 @@ const doCreateNetwork = (typeMsg, message) => {
         localStorage.setItem('numHid',numHid);
         localStorage.setItem('numOut',numOut);
     }
+    showSecondaryMessages('success','New Network Created');
+}
+
+const doTrainNetwork = () => {
+    clearMessages();
+    clearSecondaryMessages();
+    alTrained = false;
+    trainingStartTime = new Date().getTime();
+    train();
 }

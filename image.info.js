@@ -10,13 +10,14 @@ if (localStorage) {
 
 class MyImageInfo {
 
-    constructor(grid, name, numericTarget) {
-        this.inputs = grid.flat();
+    constructor(flatGrid, numRows, numCols, name, numericTarget) {
+        this.inputs = flatGrid;
         this.name = name;
         // example, for  number type images, just enter the number.
         // for anything else, like a letter, or a shape
         this.target = parseInt(numericTarget); 
-
+        this.numGridRows = numRows;
+        this.numGridCols = numCols;
     }
 
     save = () => {
@@ -27,7 +28,8 @@ class MyImageInfo {
             } else {
                 currentImageInfoNumber = num;
             }
-            localStorage.setItem(this.name + '-' + currentImageInfoNumber + '.json', JSON.stringify(this));
+            this.storageKey = this.name + '-' + currentImageInfoNumber + '-Shapes' + this.numGridRows + 'x' + this.numGridCols + '.json';
+            localStorage.setItem(this.storageKey, JSON.stringify(this));
             currentImageInfoNumber = parseInt(currentImageInfoNumber);
             currentImageInfoNumber++;
             localStorage.setItem('currentImageInfoNumber', currentImageInfoNumber);

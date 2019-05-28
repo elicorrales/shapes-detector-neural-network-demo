@@ -35,6 +35,24 @@ let imageInfoGridArray;
 let imageInfoName;
 let imageInfoTarget;
 
+    if (localStorage) {
+        numHorz = parseInt(localStorage.getItem('numHorz'));
+    }
+    if (localStorage) {
+        numVert = parseInt(localStorage.getItem('numVert'));
+    }
+    let numInputs = parseInt(nnNumInputsElem.value);
+    if (numHorz === undefined || isNaN(numHorz)) {
+        numHorz = 1;
+    }
+    numVert = numInputs/numHorz
+    numHorzElem.innerHTML = numHorz;
+    numVertElem.innerHTML = numVert;
+
+    if (numHorz !== numVert) {
+        showMessages('warning','Horz != Vert');
+    }
+
 const doClearCanvas = () => {
     background(255);
     pointXElem.value = 0;
@@ -108,6 +126,7 @@ const doChangeCurrY = (obj) => {
 
 const doIncHorzResolution = () => {
     clearMessages();
+    clearSecondaryMessages();
     numHorz++;
     numHorzElem.innerHTML = numHorz;
     let numInputs = parseInt(nnNumInputsElem.value);
@@ -134,6 +153,7 @@ const doIncHorzResolution = () => {
 }
 const doDecHorzResolution = () => {
     clearMessages();
+    clearSecondaryMessages();
     numHorz--;
     if (numHorz < 1) {
         showMessages('danger', 'Choose Another Horz');
@@ -181,9 +201,9 @@ const gridSquares = (r, g, b) => {
 
 const doFillGridSquares = () => {
     clearMessages();
-    if (imageRegion === undefined) {
+    if (imageRegion === undefined || leftBlackX===undefined || leftBlackX===-1) {
         showMessages('danger','No Image to Fill Grid Squares');
-        return;
+        return false;
     }
 
     currGridSquareImage = undefined;
@@ -226,6 +246,7 @@ const doFillGridSquares = () => {
         imageInfoGridArray.push(gridRow);
     }
 
+    return true;
 }
 
 const doShapeGrid = () => {
@@ -295,14 +316,15 @@ const doShapeBoundarySearch = () => {
         rect(leftBlackX - 3, leftBlackY - 3, 6, 6);
         rect(rightBlackX - 3, rightBlackY - 3, 6, 6);
         rect(leftBlackX, topBlackY, rightBlackX - leftBlackX, bottomBlackY - topBlackY);
-    }
-    let boundaryWidth = rightBlackX - leftBlackX;
-    let boundaryHeight = bottomBlackY - topBlackY;
-    if (boundaryWidth < 100 && boundaryHeight < 100) {
-        showMessages('danger', 'Image Too Small');
-        return;
+        let boundaryWidth = rightBlackX - leftBlackX;
+        let boundaryHeight = bottomBlackY - topBlackY;
+        if (boundaryWidth < 100 && boundaryHeight < 100) {
+            showMessages('danger', 'Image Too Small');
+            return false;
+        }
     }
     showMessages('info', 'Fast Pixel Done');
+    return true;
 }
 
 const doSaveImage = () => {
@@ -314,8 +336,28 @@ const doSaveImage = () => {
     }
 }
 
+const areTheseTwoGridArraysEqual = (a,b) => {
+    if (a === b) return true;
+    if (a.length != b.length) {
+        console.log('array a and b are not the same length');
+        return false;
+    }
+    for (let i=0; i<a.length; i++) {
+        if (a[i] !== b[i]) {
+            console.log('array a and b were differet at idx ' + i);
+            return false;
+        }
+    }
+    return true;
+}
+
 const doSaveImageInfo = () => {
     clearMessages();
+    clearSecondaryMessages();
+    if (currentTrainingData===undefined) {
+        showSecondaryMessages('danger','No Training Data Type Selected');
+        return;
+    }
     if (imageRegion===undefined || imageRegion.length === 0) {
         showMessages('danger','No Image Region Info to Save');
         return;
@@ -334,9 +376,27 @@ const doSaveImageInfo = () => {
         return;
     }
 
-    let myImageInfo = new MyImageInfo(imageInfoGridArray,imageInfoName, imageInfoTarget);
+    let flatGrid = imageInfoGridArray.flat();
+    let shapeNameMatches = [];
+    for (let i=0; i<currentTrainingData.length; i++) {
+         if (currentTrainingData[i].name === imageInfoName) {
+             shapeNameMatches.push(currentTrainingData[i]);
+         }
+    };
+    shapeNameMatches.forEach( sm => {
+        console.log('comparing '+sm.storageKey+' to flat grid');
+        if (areTheseTwoGridArraysEqual(flatGrid,sm.inputs)) {
+            clearMessages();
+            clearSecondaryMessages();
+            showSecondaryMessages('warning','Pattern Previously Saved for: ' +imageInfoName);
+            return;
+        }
+    })
+
+    let myImageInfo = new MyImageInfo(flatGrid,numVert, numHorz, imageInfoName, imageInfoTarget);
     myImageInfo.save();
-    showMessages('success','Image \'' + imageInfoName + '\' saved.')
+    showSecondaryMessages('success','Image \'' + imageInfoName + '\' saved.')
+    doChooseShapesTrainingData('Shapes',numVert,numHorz);
 }
 
 const doImageName = (obj) => {
@@ -354,14 +414,34 @@ const doPlaceImage = () => {
         image(imageRegion, imageStartX, imageStartY);
     } else {
         showMessages('danger','No Image To Place');
+        return false;
     }
+    return true;
 }
 
 const doGuess = () => {
-    doPlaceImage();
-    doShapeBoundarySearch();
-    doFillGridSquares();
+    clearMessages();
+    clearSecondaryMessages();
+    if (currentTrainingData===undefined) {
+        showSecondaryMessages('danger','No Training Data Type Selected');
+        return;
+    }
+    /*
+    if (imageInfoGridArray===undefined) {
+        showSecondaryMessages('danger','No Grid Image. Did you draw one?')
+        return;
+    }
+    */
+    if (doPlaceImage()) {
+        if (!doShapeBoundarySearch()) return;
+        if (!doFillGridSquares()) return;
+    } else {
+        if (!doShapeBoundarySearch()) return;
+        if (!doFillGridSquares()) return;
+    }
+
     let guesses = network.predict(imageInfoGridArray.flat());
+    console.log(guesses);
     let prevHighestGuessVal = 0;
     let highestGuess = 0;
     let highestGuessIdx = -1;
@@ -381,6 +461,8 @@ const doGuess = () => {
 }
 
 const doReTrain = () => {
+    clearMessages();
+    clearSecondaryMessages();
     allTrained = false;
     trainingStartTime = new Date().getTime();
     train();

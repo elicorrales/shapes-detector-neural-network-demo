@@ -16,17 +16,6 @@
         <!-- Static navbar -->
         <nav class="navbar navbar-default">
             <div class="container-fluid">
-                <!--
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle " data-toggle="collapse" data-target="#navbar"
-                        aria-expanded="false" aria-controls="navbar">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                </div>
-            -->
                 <div id="navbar" class="navbar ">
                     <ul class="nav navbar-nav">
                         <li id="homeNavBtn" class="active"><a href="#">Home</a></li>
@@ -35,9 +24,7 @@
                         <li id="aboutNavBtn"><a href="#">About</a></li>
                     </ul>
                 </div>
-                <!--/.nav-collapse -->
             </div>
-            <!--/.container-fluid -->
         </nav>
 
 
@@ -45,6 +32,7 @@
 
     <div class="container container-fluid">
         <div id="messages"></div>
+        <div id="secondaryMessages"></div>
     </div>
 
 
@@ -64,6 +52,7 @@
                     <label for="nnNumOutputs">Outputs:</label>
                     <input id="nnNumOutputs" type="text" placeholder="no of outputs" value="1" />
                     <button class="btn btn-info" onclick="doCreateNetwork()">Create Network</button>
+                    <button class="btn btn-info" onclick="doTrainNetwork()">Train Network</button>
                 </div>
             </div>
         </div>
@@ -71,14 +60,6 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     Canvas
-                    <label for="setCanvasHeight">Height:
-                        <input id="setCanvasHeight" name="setCanvasHeight" type="text" placeholder="height" value="400" onchange="doChangeCanvasHeight(this)" />
-                    </label>
-                    <button class="btn btn-default" onclick="doChooseLogicGatesTrainingData()">Logic Data</button>
-                    <button class="btn btn-default" onclick="doChooseShapesTrainingData()">Shapes Data</button>
-                    <button class="btn btn-default" onclick="doSaveShapesTrainingData()">Save All Shapes Training Data</button>
-                    <button class="btn btn-default" onclick="doRemoveShapesTrainingData()">Del Shapes Data</button>
-                    <label for="delRegex">Regex: <input id="delRegex" name="delRegex" type="text" placeholder="regex"/> </label>
                 </div>
                 <div class="panel-body">
                     <div id="trainingCanvasParent"></div>
@@ -93,6 +74,29 @@
                     <input id="trainingWaitSlider" type="range" min="1" max="60" step="1" value="4"
                         onchange="doChangeTrainingWaitTime()">
                 </div>
+                <div class="panel-footer">
+                    Canvas
+                    <label for="setCanvasHeight">Height:
+                        <input id="setCanvasHeight" name="setCanvasHeight" type="text" placeholder="height" value="400" onchange="doChangeCanvasHeight(this)" />
+                    </label>
+                    <label for="delRegex">Loc Strg Regex To Del: <input id="delRegex" name="delRegex" type="text" placeholder="regex" onchange="doRemoveLocalStorageData()"/> </label>
+                    <div>
+                        Choose Which Pre-Loaded Training Data:
+                        <button class="btn btn-default" onclick="doChooseLogicGatesTrainingData()">Use Gate Logic Data</button>
+                        <button class="btn btn-default" onclick="doChooseDigits8x8TrainingData()">Use Digits 8x8 Training Data</button>
+                    </div>
+                    <div>
+                    <button class="btn btn-default" onclick="doChooseShapesTrainingData('Shapes','8','8')">Use Shapes Data 8x8 (LocalStorage)</button>
+                    <button class="btn btn-default" onclick="doRemoveShapesTrainingData('Shapes','8','8')">Del Shapes Data 8x8 (LocalStorage)</button>
+                    <button class="btn btn-default" onclick="doSaveShapesTrainingData('Shapes','8','8')">Save All Shapes Training Data(8x8)</button>
+                    </div>
+                    <div>
+                    <button class="btn btn-default" onclick="doChooseShapesTrainingData('Shapes','12','12')">Use Shapes Data 12x12 (LocalStorage)</button>
+                    <button class="btn btn-default" onclick="doRemoveShapesTrainingData('Shapes','12','12')">Del Shapes Data 12x12 (LocalStorage)</button>
+                    <button class="btn btn-default" onclick="doSaveShapesTrainingData('Shapes','12','12')">Save All Shapes Training Data(12x12)</button>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -176,13 +180,13 @@
 <script src="js.vendor/matrix.js"></script>
 <script src="messages.js"></script>
 <script src="training.data.js"></script>
+<script src="digits.8x8.training.data.js"></script>
 <script src="train.func.js"></script>
-<script src="shapes.js"></script>
 <script src="nn.html.controls.js"></script>
 <script src="canvas.html.controls.js"></script>
 <script src="navbar.html.controls.js"></script>
 <script src="mouse.events.js"></script>
-<script src="search.pixels.func.js"></script>
+<script src="shapes.funcs.js"></script>
 <script src="image.info.js"></script>
 <script src="index.js"></script>
 

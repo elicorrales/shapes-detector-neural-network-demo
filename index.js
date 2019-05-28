@@ -29,6 +29,6 @@ function draw() {
     newCanvasHeight = false;
   }
   if (trainingSectionIsActive) train();
-  if (shapesSectionIsActive) shapes();
+  //if (shapesSectionIsActive) shapes();
   //if (autoIncPointElem.checked) doIncPointXY();
 }

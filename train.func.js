@@ -6,7 +6,7 @@ const autoRelearnElem = document.getElementById('autoRelearn');
 const delRegexElem = document.getElementById('delRegex');
 
 let trainingStartTime = new Date().getTime();
-let allTrained = false;
+let allTrained = true;
 let showedAllTrained = false;
 let autoRelearn = false;
 let timeRanOut = false;
@@ -30,10 +30,10 @@ if (localStorage) {
 trainingWaitElem.innerHTML = trainingWaitSliderElem.value;
 
 
-const doSaveShapesTrainingData = () => {
+const doSaveShapesTrainingData = (whichShapes,rows,cols) => {
     clearMessages();
-    if (currentTrainingData !== undefined && typeOfTrainingData==='Shapes') {
-        save(currentTrainingData, 'shapes.training.data.json');
+    if (currentTrainingData !== undefined && typeOfTrainingData!==undefined && typeOfTrainingData.startsWith('Shapes')) {
+        save(JSON.stringify(currentTrainingData), whichShapes+rows+'x'+cols+'.json');
     } else {
         showMessages('danger','No Shapes Training Data to save');
     }
@@ -50,15 +50,27 @@ const isAllTrained = (data, errors) => {
                 +' You can add it to the training data, or you can reduce the Network output nodes.';
     }
     for (let i = 0; i < data.length; i++) {
-        if (Math.abs(data[i] - errors[i]) > 0.05) return false;
+        if (Math.abs(data[i] - errors[i]) > 0.03) return false;
     }
     return true;
 }
 
 const doChooseLogicGatesTrainingData = () => {
+    clearMessages();
+    clearSecondaryMessages();
     allTrained = false;
     thereWasACriticalError = false;
     currentTrainingData = logicGatesTrainingData;
+    typeOfTrainingData = 'Logic';
+}
+
+const doChooseDigits8x8TrainingData = () => {
+    clearMessages();
+    clearSecondaryMessages();
+    allTrained = false;
+    thereWasACriticalError = false;
+    currentTrainingData = digits8x8TrainingData;
+    typeOfTrainingData = 'Digits8x8';
 }
 
 const findLocalStorageItems = (query) => {
@@ -75,13 +87,20 @@ const findLocalStorageItems = (query) => {
 }
 
 
-const doChooseShapesTrainingData = () => {
+const doChooseShapesTrainingData = (whichShapes,rows,cols) => {
+    typeOfTrainingData = whichShapes+rows+'x'+cols;
+    clearMessages();
+    clearSecondaryMessages();
+    if (numVert!==parseInt(rows) || numHorz!==parseInt(cols)) {
+        showSecondaryMessages('danger','Network grid rows x cols != ' + rows + 'x' + cols);
+        return;
+    }
     allTrained = false;
     thereWasACriticalError = false;
     let trainingData = [];
     let outputs = [];
     if (localStorage) {
-        let items = findLocalStorageItems('.*json');
+        let items = findLocalStorageItems('.*'+whichShapes+rows+'x'+cols+'.json');
         items.forEach( item => {
             let foundOutput = outputs.find( o => {return o === item.val.target});
             if (foundOutput===undefined) outputs.push(item.val.target);
@@ -112,10 +131,33 @@ const doChooseShapesTrainingData = () => {
         t.outputs = uniqueOutputs;
     });
     currentTrainingData = trainingData;
-    typeOfTrainingData = 'Shapes';
+    typeOfTrainingData = whichShapes;
 }
 
-const doRemoveShapesTrainingData = () => {
+const doRemoveShapesTrainingData = (whichShapes,rows,cols) => {
+    let regex = whichShapes+rows+'x'+cols;
+
+    if (regex===undefined || regex.length<1) {
+        showMessages('danger','Need A Regex in order to delete training data');
+        return;
+    }
+
+    let stuffDeleted = false;
+    if (localStorage) {
+        let items = findLocalStorageItems('.*' + regex + '.*.json');
+        items.forEach( item => {
+            localStorage.removeItem(item.key);
+            stuffDeleted = true;
+        });
+    }
+
+    if (stuffDeleted) {
+        showMessages('success','Matching \'' + regex + '\' was deleted.');
+    }
+    delRegexElem.value = undefined;
+}
+
+const doRemoveLocalStorageData = () => {
     let regex = delRegexElem.value;
     if (regex===undefined || regex.length<1) {
         showMessages('danger','Need A Regex in order to delete training data');
@@ -136,6 +178,7 @@ const doRemoveShapesTrainingData = () => {
     }
     delRegexElem.value = undefined;
 }
+
 
 const doChangeLearningRate = () => {
     clearMessages();
@@ -166,6 +209,7 @@ const doAutoRelearn = () => {
 }
 
 const train = () => {
+
 
     if (currentTrainingData === undefined || currentTrainingData.length < 1) {
         showMessages('danger','No Training Data Selected Or There is no data');
